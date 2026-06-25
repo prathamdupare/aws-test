@@ -1,0 +1,53 @@
+name: Dynamic React App Deployment Test
+
+on:
+  push:
+    branches:
+      - main # Triggers compilation and deployment whenever code is pushed to main
+
+permissions:
+  id-token: write # Required for requesting the AWS JWT via OIDC
+  contents: read  # Required for checkout tools to view your code repository
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Pull repository code down into runner instance environment
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Establish isolated environment Node execution process runtime
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # Step 3: Install isolated lockfile manifest dependencies
+      - name: Install Project Dependencies
+        run: npm ci
+
+      # Step 4: Run production compilation script
+      - name: Compile Static Production Distribution Assets
+        run: npm run build
+
+      # Step 5: Securely request dynamic ephemeral AWS execution tokens via OIDC
+      - name: Authenticate with AWS via OpenID Connect
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1 # Change to your chosen AWS infrastructure region
+          audience: sts.amazonaws.com
+
+      # Step 6: Sync production build folder with designated S3 storage target
+      - name: Deploy Production Assets to AWS S3
+        run: |
+          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
+        # NOTE: If using Create React App instead of Vite, change "dist/" to "build/"
+
+      # Step 7: Clear Edge Cache locations to make updates immediately live
+      - name: Invalidate CloudFront CDN Edge Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DIST_ID }} --paths "/*"
