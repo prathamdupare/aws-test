@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'backend/**' # Only runs if you change files in a backend folder (adjust if needed)
+      - 'aws-node-test/**' # Only runs if you change files in the backend folder
 
 permissions:
   id-token: write
@@ -24,8 +24,8 @@ jobs:
           audience: sts.amazonaws.com
           
       - name: Zip application
-        # This zips your backend folder. Change './backend' to '.' if your backend is in the root folder.
-        run: cd backend && zip -r ../backend.zip . -x "*.git*"
+        # This zips your backend folder. Change './aws-node-test' to '.' if your backend is in the root folder.
+        run: cd aws-node-test && zip -r ../backend.zip . -x "*.git*"
         
       - name: Upload to S3
         run: aws s3 cp backend.zip s3://${{ secrets.AWS_S3_BUCKET }}/artifacts/backend-${{ github.sha }}.zip
