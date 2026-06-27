@@ -32,6 +32,8 @@ jobs:
       # Step 4: Run production compilation script
       - name: Compile Static Production Distribution Assets
         run: npm run build
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
 
       # Step 5: Securely request dynamic ephemeral AWS execution tokens via OIDC
       - name: Authenticate with AWS via OpenID Connect

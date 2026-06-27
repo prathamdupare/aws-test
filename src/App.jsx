@@ -1,11 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 function App() {
   const [count, setCount] = useState(0)
+  const [apiStatus, setApiStatus] = useState(null)
+  const [apiError, setApiError] = useState(null)
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/health`)
+      .then((res) => res.json())
+      .then((data) => setApiStatus(data))
+      .catch((err) => setApiError(err.message))
+  }, [])
 
   return (
     <>
@@ -18,6 +29,14 @@ function App() {
         <div>
           <p>
             Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+          </p>
+          <p>
+            Backend:{' '}
+            {apiStatus
+              ? apiStatus.message
+              : apiError
+                ? `error — ${apiError}`
+                : 'loading...'}
           </p>
         </div>
         <button
