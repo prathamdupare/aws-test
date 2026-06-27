@@ -15,10 +15,11 @@ function App() {
     setLogs((l) => [...l, `[${ts}] → GET ${API_URL}/api/health`])
     try {
       const res = await fetch(`${API_URL}/api/health`)
-      const data = await res.json()
+      const ct = res.headers.get('content-type') || 'unknown'
+      const text = await res.text()
       setLogs((l) => [
         ...l,
-        `[${ts}] ← ${res.status} ${JSON.stringify(data)}`,
+        `[${ts}] ← ${res.status} ${ct} ${text.slice(0, 300)}`,
       ])
     } catch (err) {
       setLogs((l) => [...l, `[${ts}] × ${err.message}`])
