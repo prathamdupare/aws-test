@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
@@ -8,15 +8,22 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 function App() {
   const [count, setCount] = useState(0)
-  const [apiStatus, setApiStatus] = useState(null)
-  const [apiError, setApiError] = useState(null)
+  const [logs, setLogs] = useState([])
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/health`)
-      .then((res) => res.json())
-      .then((data) => setApiStatus(data))
-      .catch((err) => setApiError(err.message))
-  }, [])
+  const ping = async () => {
+    const ts = new Date().toLocaleTimeString()
+    setLogs((l) => [...l, `[${ts}] → GET ${API_URL}/api/health`])
+    try {
+      const res = await fetch(`${API_URL}/api/health`)
+      const data = await res.json()
+      setLogs((l) => [
+        ...l,
+        `[${ts}] ← ${res.status} ${JSON.stringify(data)}`,
+      ])
+    } catch (err) {
+      setLogs((l) => [...l, `[${ts}] × ${err.message}`])
+    }
+  }
 
   return (
     <>
@@ -27,25 +34,24 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-          <p>
-            Backend:{' '}
-            {apiStatus
-              ? apiStatus.message
-              : apiError
-                ? `error — ${apiError}`
-                : 'loading...'}
-          </p>
+          <p>Frontend ↔ Backend smoke test</p>
+          <p>Click ping to call <code>{API_URL}/api/health</code></p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+        <div className="buttons">
+          <button
+            type="button"
+            className="counter"
+            onClick={() => setCount((count) => count + 1)}
+          >
+            Count is {count}
+          </button>
+          <button type="button" className="ping" onClick={ping}>
+            Ping Backend
+          </button>
+        </div>
+        <pre className="logs">
+          {logs.length === 0 ? 'no requests yet' : logs.join('\n')}
+        </pre>
       </section>
 
       <div className="ticks"></div>
