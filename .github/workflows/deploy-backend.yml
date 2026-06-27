@@ -1,0 +1,38 @@
+name: Deploy Node.js Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**' # Only runs if you change files in a backend folder (adjust if needed)
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Authenticate with AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+          audience: sts.amazonaws.com
+          
+      - name: Zip application
+        # This zips your backend folder. Change './backend' to '.' if your backend is in the root folder.
+        run: cd backend && zip -r ../backend.zip . -x "*.git*"
+        
+      - name: Upload to S3
+        run: aws s3 cp backend.zip s3://${{ secrets.AWS_S3_BUCKET }}/artifacts/backend-${{ github.sha }}.zip
+        
+      - name: Trigger CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name NodeBackendTest \
+            --deployment-group-name TestGroup \
+            --s3-location bucket=${{ secrets.AWS_S3_BUCKET }},bundleType=zip,key=artifacts/backend-${{ github.sha }}.zip
