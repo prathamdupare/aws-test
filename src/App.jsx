@@ -19,7 +19,7 @@ function App() {
 
       const data = await res.json()
       setLogs((l) => [
-        meta key in emacs ...l,
+        ...l,
         `[${ts}] ← ${res.status} ${JSON.stringify(data)}`,
       ])
     } catch (err) {
