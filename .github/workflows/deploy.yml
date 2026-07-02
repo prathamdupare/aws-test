@@ -46,7 +46,7 @@ jobs:
       # Step 6: Sync production build folder with designated S3 storage target
       - name: Deploy Production Assets to AWS S3
         run: |
-          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete
+          aws s3 sync dist/ s3://${{ secrets.AWS_S3_BUCKET }} --delete --exclude "artifacts/*"
         # NOTE: If using Create React App instead of Vite, change "dist/" to "build/"
 
       # Step 7: Clear Edge Cache locations to make updates immediately live

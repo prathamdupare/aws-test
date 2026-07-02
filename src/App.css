@@ -228,3 +228,48 @@
         border-right-color: var(--border);
     }
 }
+
+.auth {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 360px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.auth-form input {
+    font-size: 15px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--code-bg);
+    color: var(--text-h);
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.auth-form input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: transparent;
+}
+
+.auth-title {
+    margin: 0;
+    font-weight: 600;
+}
+
+.error {
+    color: #e5484d;
+    margin: 0;
+    font-size: 14px;
+}
